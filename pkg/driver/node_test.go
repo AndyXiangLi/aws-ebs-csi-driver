@@ -1170,32 +1170,49 @@ func TestNodeUnpublishVolume(t *testing.T) {
 }
 
 func TestNodeGetVolumeStats(t *testing.T) {
-	mockCtl := gomock.NewController(t)
-	defer mockCtl.Finish()
+	testCases := []struct {
+		name     string
+		testFunc func(t *testing.T)
+	}{
+		{
+			name: "success normal",
+			testFunc: func(t *testing.T) {
+				mockCtl := gomock.NewController(t)
+				defer mockCtl.Finish()
 
-	mockMetadata := mocks.NewMockMetadataService(mockCtl)
-	mockMounter := mocks.NewMockMounter(mockCtl)
+				mockMetadata := mocks.NewMockMetadataService(mockCtl)
+				mockMounter := mocks.NewMockMounter(mockCtl)
+				mockStatter := mocks.NewMockStatter(mockCtl)
+				VolumePath := "/test"
+				one := int64(1)
 
-	awsDriver := nodeService{
-		metadata: mockMetadata,
-		mounter:  mockMounter,
-		inFlight: internal.NewInFlight(),
+				mockMounter.EXPECT().ExistsPath(VolumePath).Return(true, nil)
+				mockStatter.EXPECT().IsBlockDevice(VolumePath).Return(false, nil)
+				mockStatter.EXPECT().StatFS(VolumePath).Return(one, one, one, one, one, one, nil)
+
+				awsDriver := nodeService{
+					metadata: mockMetadata,
+					mounter:  mockMounter,
+					statter:  mockStatter,
+					inFlight: internal.NewInFlight(),
+				}
+
+				req := &csi.NodeGetVolumeStatsRequest{
+					VolumeId:   "vol-test",
+					VolumePath: VolumePath,
+				}
+				_, err := awsDriver.NodeGetVolumeStats(context.TODO(), req)
+				if err != nil {
+					t.Fatalf("Expected no error but got err %v", err)
+				}
+			},
+		},
 	}
 
-	expErrCode := codes.Unimplemented
+	for _, tc := range testCases {
+		t.Run(tc.name, tc.testFunc)
+	}
 
-	req := &csi.NodeGetVolumeStatsRequest{}
-	_, err := awsDriver.NodeGetVolumeStats(context.TODO(), req)
-	if err == nil {
-		t.Fatalf("Expected error code %d, got nil", expErrCode)
-	}
-	srvErr, ok := status.FromError(err)
-	if !ok {
-		t.Fatalf("Could not get error status code from error: %v", srvErr)
-	}
-	if srvErr.Code() != expErrCode {
-		t.Fatalf("Expected error code %d, got %d message %s", expErrCode, srvErr.Code(), srvErr.Message())
-	}
 }
 
 func TestNodeGetCapabilities(t *testing.T) {
@@ -1223,6 +1240,13 @@ func TestNodeGetCapabilities(t *testing.T) {
 			Type: &csi.NodeServiceCapability_Rpc{
 				Rpc: &csi.NodeServiceCapability_RPC{
 					Type: csi.NodeServiceCapability_RPC_EXPAND_VOLUME,
+				},
+			},
+		},
+		{
+			Type: &csi.NodeServiceCapability_Rpc{
+				Rpc: &csi.NodeServiceCapability_RPC{
+					Type: csi.NodeServiceCapability_RPC_GET_VOLUME_STATS,
 				},
 			},
 		},

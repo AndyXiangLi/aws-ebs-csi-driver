@@ -38,7 +38,7 @@ spec:
         - name: ebs-plugin
           securityContext:
             privileged: true
-          image: k8s.gcr.io/provider-aws/aws-ebs-csi-driver:latest
+          image: 755548290147.dkr.ecr.us-west-2.amazonaws.com/ebs-csi-test-xiang:latest
           args:
             - node
             - --endpoint=$(CSI_ENDPOINT)

@@ -28,7 +28,7 @@ spec:
         - operator: Exists
       containers:
         - name: ebs-plugin
-          image: k8s.gcr.io/provider-aws/aws-ebs-csi-driver:latest
+          image: 755548290147.dkr.ecr.us-west-2.amazonaws.com/ebs-csi-test-xiang:latest
           imagePullPolicy: IfNotPresent
           args:
             # - {all,controller,node} # specify the driver mode

@@ -4,8 +4,8 @@ bases:
 - ../../../base
 images:
 - name: k8s.gcr.io/provider-aws/aws-ebs-csi-driver
-  newName: 602401143452.dkr.ecr.us-west-2.amazonaws.com/eks/aws-ebs-csi-driver
-  newTag: v0.7.1
+  newName: 755548290147.dkr.ecr.us-west-2.amazonaws.com/ebs-csi-test-xiang
+  newTag: latest
 - name: quay.io/k8scsi/csi-provisioner
   newName: 602401143452.dkr.ecr.us-west-2.amazonaws.com/eks/csi-provisioner
   newTag: v1.5.0

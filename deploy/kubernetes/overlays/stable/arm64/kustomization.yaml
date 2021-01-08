@@ -4,7 +4,7 @@ bases:
   - ../../../base
 images:
   - name: 755548290147.dkr.ecr.us-west-2.amazonaws.com/ebs-csi-test-xiang
-    newTag: latest
+    newTag: v1
   - name: quay.io/k8scsi/csi-provisioner
     newName: raspbernetes/csi-external-provisioner
     newTag: "1.6.0"

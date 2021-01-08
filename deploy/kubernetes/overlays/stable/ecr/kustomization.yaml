@@ -5,7 +5,7 @@ bases:
 images:
 - name: 755548290147.dkr.ecr.us-west-2.amazonaws.com/ebs-csi-test-xiang
   newName: 755548290147.dkr.ecr.us-west-2.amazonaws.com/ebs-csi-test-xiang
-  newTag: latest
+  newTag: v1
 - name: quay.io/k8scsi/csi-provisioner
   newName: 602401143452.dkr.ecr.us-west-2.amazonaws.com/eks/csi-provisioner
   newTag: v1.5.0

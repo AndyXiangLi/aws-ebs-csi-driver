@@ -28,7 +28,7 @@ spec:
         - operator: Exists
       containers:
         - name: ebs-plugin
-          image: 755548290147.dkr.ecr.us-west-2.amazonaws.com/ebs-csi-test-xiang:latest
+          image: 755548290147.dkr.ecr.us-west-2.amazonaws.com/ebs-csi-test-xiang:v1
           imagePullPolicy: IfNotPresent
           args:
             # - {all,controller,node} # specify the driver mode

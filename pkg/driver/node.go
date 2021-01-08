@@ -357,21 +357,28 @@ func (d *nodeService) NodeGetVolumeStats(ctx context.Context, req *csi.NodeGetVo
 	}
 
 	exists, err := d.mounter.ExistsPath(req.VolumePath)
+	klog.V(4).Infof("Code point 1")
+
 	if err != nil {
+		klog.V(4).Infof("Code point 2")
 		return nil, status.Errorf(codes.Internal, "unknown error when stat on %s: %v", req.VolumePath, err)
 	}
 	if !exists {
+		klog.V(4).Infof("Code point 3")
 		return nil, status.Errorf(codes.NotFound, "path %s does not exist", req.VolumePath)
 	}
 
 	isBlock, err := d.statter.IsBlockDevice(req.VolumePath)
 
 	if err != nil {
+		klog.V(4).Infof("Code point 4")
 		return nil, status.Errorf(codes.Internal, "failed to determine whether %s is block device: %v", req.VolumePath, err)
 	}
 	if isBlock {
+		klog.V(4).Infof("Code point 5")
 		bcap, err := d.getBlockSizeBytes(req.VolumePath)
 		if err != nil {
+			klog.V(4).Infof("Code point 6")
 			return nil, status.Errorf(codes.Internal, "failed to get block capacity on path %s: %v", req.VolumePath, err)
 		}
 		return &csi.NodeGetVolumeStatsResponse{
@@ -385,7 +392,9 @@ func (d *nodeService) NodeGetVolumeStats(ctx context.Context, req *csi.NodeGetVo
 	}
 
 	available, capacity, used, inodesFree, inodes, inodesUsed, err := d.statter.StatFS(req.VolumePath)
+	klog.V(4).Infof("Stat result: %d, %d, %d, %d, %d, %d", available, capacity, used, inodesFree, inodes, inodesUsed)
 	if err != nil {
+		klog.V(4).Infof("Code point 7")
 		return nil, status.Errorf(codes.Internal, "failed to get fs info on path %s: %v", req.VolumePath, err)
 	}
 

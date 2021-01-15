@@ -11,7 +11,7 @@ parameters:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: my-pv
+  name: my-pvc
 spec:
   capacity:
     storage: 4Gi

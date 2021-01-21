@@ -20,6 +20,7 @@ import (
 	"context"
 	"errors"
 	"os"
+	"os/exec"
 	"reflect"
 	"strings"
 	"testing"
@@ -1094,7 +1095,24 @@ func TestNodeExpandVolume(t *testing.T) {
 		mounter:  mockMounter,
 		inFlight: internal.NewInFlight(),
 	}
-
+	mkblk := exec.Command("dd", "if=/dev/zero", "of=loopbackfile.img", "bs=1M", "count=32")
+	_, err := mkblk.Output()
+	if err != nil {
+		t.Fatalf("Expect no error but got: %v", err)
+	}
+	mkloop := exec.Command("losetup", "-fP", "loopbackfile.img")
+	_, err = mkloop.Output()
+	if err != nil {
+		t.Fatalf("Expect no error but got: %v", err)
+	}
+	getDeviceName := exec.Command("losetup", "-a", "|", "grep loopbackfile.img", "|", "awk", "'{print $1}'")
+	output, err := getDeviceName.Output()
+	if err != nil {
+		t.Fatalf("Expect no error but got: %v", err)
+	}
+	strOut := strings.TrimSpace(string(output))
+	loopDevicePath := strings.TrimSuffix(strOut, ":")
+	defer exec.Command("losetup", "-d", strOut)
 	tests := []struct {
 		name               string
 		request            csi.NodeExpandVolumeRequest
@@ -1153,7 +1171,16 @@ func TestNodeExpandVolume(t *testing.T) {
 			},
 			expectResponseCode: codes.OK,
 		},
+		{
+			name: "Success [volumePath is block]",
+			request: csi.NodeExpandVolumeRequest{
+				VolumePath: loopDevicePath,
+				VolumeId:   "test-volume-id",
+			},
+			expectResponseCode: codes.OK,
+		},
 	}
+
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

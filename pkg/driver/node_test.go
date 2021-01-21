@@ -1101,7 +1101,7 @@ func TestNodeExpandVolume(t *testing.T) {
 		t.Fatalf("Expect no error but got: %v", err)
 	}
 	mkloop := exec.Command("losetup", "-fP", "loopbackfile.img")
-	_, err = mkloop.Output()
+	err = mkloop.Run()
 	if err != nil {
 		t.Fatalf("Expect no error but got: %v", err)
 	}

@@ -59,7 +59,7 @@ func (t *DynamicallyProvisionedResizeVolumeTest) Run(client clientset.Interface,
 	}
 	updatedSize := updatedPvc.Spec.Resources.Requests["storage"]
 
-	By("Wait for resize to complete")
+	/*By("Wait for resize to complete")
 	time.Sleep(30 * time.Second)
 
 	By("checking the resizing result")
@@ -70,14 +70,10 @@ func (t *DynamicallyProvisionedResizeVolumeTest) Run(client clientset.Interface,
 	newSize := newPvc.Spec.Resources.Requests["storage"]
 	if !newSize.Equal(updatedSize) {
 		framework.Failf("newSize(%+v) is not equal to updatedSize(%+v)", newSize.String(), updatedSize.String())
-	}
+	}*/
 
-	By("checking the resizing PV result")
-	newPv, _ := client.CoreV1().PersistentVolumes().Get(newPvc.Spec.VolumeName, metav1.GetOptions{})
-	newPvSize := newPv.Spec.Capacity["storage"]
-	if !newSize.Equal(newPvSize) {
-		By(fmt.Sprintf("newPVCSize(%+v) is not equal to newPVSize(%+v)", newSize.String(), newPvSize.String()))
-	}
+	error := WaitForPvToResize(client, namespace, updatedPvc.Spec.VolumeName, updatedSize, 1 * time.Minute, 5*time.Second)
+	framework.ExpectNoError(error)
 
 	By("Validate volume can be attached")
 	tpod := NewTestPod(client, namespace, t.Pod.Cmd)
@@ -91,4 +87,19 @@ func (t *DynamicallyProvisionedResizeVolumeTest) Run(client clientset.Interface,
 
 	defer tpod.Cleanup()
 
+}
+
+// WaitForPvToResize waiting for pvc size to be resized to desired size
+func WaitForPvToResize(c clientset.Interface, ns *v1.Namespace, pvName string, desiredSize resource.Quantity, timeout time.Duration, interval time.Duration) error {
+	By(fmt.Sprintf("Waiting up to %v for pv in namespace %q to be complete", timeout, ns.Name))
+	for start := time.Now(); time.Since(start) < timeout; time.Sleep(interval) {
+		By("checking the resizing PV result")
+		newPv, _ := c.CoreV1().PersistentVolumes().Get(pvName, metav1.GetOptions{})
+		newPvSize := newPv.Spec.Capacity["storage"]
+		if desiredSize.Equal(newPvSize) {
+			By(fmt.Sprintf("Pv size is updated to %v", newPvSize.String()))
+			return nil
+		}
+	}
+	return fmt.Errorf("Gave up after waiting %v for pvc %q to complete resizing", timeout, pvName)
 }

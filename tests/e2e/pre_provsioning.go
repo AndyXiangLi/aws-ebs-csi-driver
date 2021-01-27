@@ -12,7 +12,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package e2e
+/*package e2e
 
 import (
 	"context"
@@ -228,3 +228,4 @@ var _ = Describe("[ebs-csi-e2e] [single-az] Pre-Provisioned", func() {
 		test.Run(cs, ns)
 	})
 })
+*/

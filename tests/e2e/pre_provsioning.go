@@ -102,7 +102,7 @@ var _ = Describe("[ebs-csi-e2e] [single-az] Pre-Provisioned", func() {
 		if err != nil {
 			Fail(fmt.Sprintf("could not get rest clientset: %v", err))
 		}
-		pvTestDriver = driver.InitEbsCSIDriver()
+		//pvTestDriver = driver.InitEbsCSIDriver()
 		By(fmt.Sprintf("Successfully provisioned EBS volume: %q\n", volumeID))
 		snapshotOptions := &awscloud.SnapshotOptions{
 			Tags: map[string]string{awscloud.SnapshotNameTagKey: dummySnapshotName},

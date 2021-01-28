@@ -105,8 +105,7 @@ spec:
             {{- if .Values.extraCreateMetadata }}
             - --extra-create-metadata
             {{- end}}
-            - --enable-leader-election
-            - --leader-election-type=leases
+            - --leader-election=true
           env:
             - name: ADDRESS
               value: /var/lib/csi/sockets/pluginproxy/csi.sock

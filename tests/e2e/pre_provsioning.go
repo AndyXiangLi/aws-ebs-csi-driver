@@ -17,6 +17,9 @@ package e2e
 import (
 	"context"
 	"fmt"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/runtime/serializer"
 	k8srestclient "k8s.io/client-go/rest"
 	"math/rand"
 	"os"
@@ -229,3 +232,16 @@ var _ = Describe("[ebs-csi-e2e] [single-az] Pre-Provisioned", func() {
 		test.Run(cs, ns)
 	})*/
 })
+
+func restClient(group string, version string) (k8srestclient.Interface, error) {
+	// setup rest client
+	config, err := framework.LoadConfig()
+	if err != nil {
+		Fail(fmt.Sprintf("could not load config: %v", err))
+	}
+	gv := schema.GroupVersion{Group: group, Version: version}
+	config.GroupVersion = &gv
+	config.APIPath = "/apis"
+	config.NegotiatedSerializer = serializer.WithoutConversionCodecFactory{CodecFactory: serializer.NewCodecFactory(runtime.NewScheme())}
+	return k8srestclient.RESTClientFor(config)
+}

@@ -59,7 +59,7 @@ var _ = Describe("[ebs-csi-e2e] [single-az] Pre-Provisioned", func() {
 		ns           *v1.Namespace
 		ebsDriver    driver.PreProvisionedVolumeTestDriver
 		//pvTestDriver driver.PVTestDriver
-		snapshotrcs  k8srestclient.Interface
+		//snapshotrcs  k8srestclient.Interface
 		cloud        awscloud.Cloud
 		volumeID     string
 		snapshotID   string
@@ -98,12 +98,12 @@ var _ = Describe("[ebs-csi-e2e] [single-az] Pre-Provisioned", func() {
 		}
 		volumeID = disk.VolumeID
 		diskSize = fmt.Sprintf("%dGi", defaultDiskSize)
-		snapshotrcs, err = restClient(testsuites.SnapshotAPIGroup, testsuites.APIVersionv1beta1)
-		if err != nil {
+		//snapshotrcs, err = restClient(testsuites.SnapshotAPIGroup, testsuites.APIVersionv1beta1)
+		/*if err != nil {
 			Fail(fmt.Sprintf("could not get rest clientset: %v", err))
 		}
 		//pvTestDriver = driver.InitEbsCSIDriver()
-		By(fmt.Sprintf("Successfully provisioned EBS volume: %q\n", volumeID))
+		By(fmt.Sprintf("Successfully provisioned EBS volume: %q\n", volumeID))*/
 		snapshotOptions := &awscloud.SnapshotOptions{
 			Tags: map[string]string{awscloud.SnapshotNameTagKey: dummySnapshotName},
 		}

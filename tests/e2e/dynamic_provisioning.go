@@ -14,7 +14,7 @@ limitations under the License.
 
 package e2e
 
-import (
+/*import (
 	"fmt"
 	"math/rand"
 	"os"
@@ -539,8 +539,9 @@ var _ = Describe("[ebs-csi-e2e] [multi-az] Dynamic Provisioning", func() {
 		test.Run(cs, ns)
 	})
 })
+*/
 
-func restClient(group string, version string) (restclientset.Interface, error) {
+/*func restClient(group string, version string) (restclientset.Interface, error) {
 	// setup rest client
 	config, err := framework.LoadConfig()
 	if err != nil {
@@ -552,3 +553,4 @@ func restClient(group string, version string) (restclientset.Interface, error) {
 	config.NegotiatedSerializer = serializer.WithoutConversionCodecFactory{CodecFactory: serializer.NewCodecFactory(runtime.NewScheme())}
 	return restclientset.RESTClientFor(config)
 }
+*/

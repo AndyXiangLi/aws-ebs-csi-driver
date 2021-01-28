@@ -125,7 +125,7 @@ var _ = Describe("[ebs-csi-e2e] [single-az] Pre-Provisioned", func() {
 		}
 	})
 
-	It("[env] should write and read to a pre-provisioned volume", func() {
+/*	It("[env] should write and read to a pre-provisioned volume", func() {
 		pods := []testsuites.PodDetails{
 			{
 				Cmd: "echo 'hello world' > /mnt/test-1/data && grep 'hello world' /mnt/test-1/data",
@@ -167,7 +167,7 @@ var _ = Describe("[ebs-csi-e2e] [single-az] Pre-Provisioned", func() {
 			Pod:       pod,
 		}
 		test.Run(cs, snapshotrcs, ns, snapshotID)
-	})
+	})*/
 
 	It("[env] should use a pre-provisioned volume and mount it as readOnly in a pod", func() {
 		pods := []testsuites.PodDetails{
@@ -194,7 +194,7 @@ var _ = Describe("[ebs-csi-e2e] [single-az] Pre-Provisioned", func() {
 		test.Run(cs, ns)
 	})
 
-	It(fmt.Sprintf("[env] should use a pre-provisioned volume and retain PV with reclaimPolicy %q", v1.PersistentVolumeReclaimRetain), func() {
+	/*It(fmt.Sprintf("[env] should use a pre-provisioned volume and retain PV with reclaimPolicy %q", v1.PersistentVolumeReclaimRetain), func() {
 		reclaimPolicy := v1.PersistentVolumeReclaimRetain
 		volumes := []testsuites.VolumeDetails{
 			{
@@ -227,5 +227,5 @@ var _ = Describe("[ebs-csi-e2e] [single-az] Pre-Provisioned", func() {
 			Volumes:   volumes,
 		}
 		test.Run(cs, ns)
-	})
+	})*/
 })

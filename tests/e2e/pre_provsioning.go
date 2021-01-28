@@ -58,7 +58,7 @@ var _ = Describe("[ebs-csi-e2e] [single-az] Pre-Provisioned", func() {
 		cs           clientset.Interface
 		ns           *v1.Namespace
 		ebsDriver    driver.PreProvisionedVolumeTestDriver
-		pvTestDriver driver.PVTestDriver
+		//pvTestDriver driver.PVTestDriver
 		snapshotrcs  k8srestclient.Interface
 		cloud        awscloud.Cloud
 		volumeID     string

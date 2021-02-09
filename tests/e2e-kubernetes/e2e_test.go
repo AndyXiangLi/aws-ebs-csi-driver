@@ -90,7 +90,7 @@ var csiTestSuites = []func() testsuites.TestSuite{
 	testsuites.InitMultiVolumeTestSuite,
 }
 
-var _ = ginkgo.Describe("[ebs-csi-test-migration] EBS CSI Migration", func() {
+var _ = ginkgo.Describe("[ebs-csi-migration] EBS CSI Migration", func() {
 	// Init the *in-tree* driver.
 	// The CSIMigration & CSIMigrationAWS feature gates must be enabled on the cluster.
 	// The storage.migratedPlugins flag must be set to "kubernetes.io/aws-ebs". Then the tests will

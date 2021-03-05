@@ -1,3 +1,37 @@
+# v0.9.1
+
+## Notable changes
+- Refactor inFlight object to use volumeId as key
+- Make CreateVolume idempotent
+- delete leaked volume if driver don't know the volume status
+
+### New features
+* Integrate external e2e test in the testsuits ([#726](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/pull/726), [@AndyXiangLi](https://github.com/AndyXiangLi))
+* [chart] Allow resources override for node DaemonSet + priorityClassName ([#732](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/pull/732), [@dntosas](https://github.com/dntosas))
+* [chart]  Add storage class annotation and label handling ([#734](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/pull/734), [@nicholasmhughes](https://github.com/nicholasmhughes))
+* add toleration time to NoExecute effect ([#776](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/pull/776), [@AndyXiangLi](https://github.com/AndyXiangLi))
+
+### Bug fixes
+* modify error message when request volume is in use with other node ([#698](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/pull/698), [@AndyXiangLi](https://github.com/AndyXiangLi))
+* Add readiness probe so controller does not report "Ready" prematurely ([#751](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/pull/751), [@vdhanan](https://github.com/vdhanan))
+* Fix error message when IOPSPerGB is missing in io1 volumes ([#767](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/pull/767), [@jsafrane](https://github.com/jsafrane))
+* Aws client config: increase MaxRetries ([#769](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/pull/769), [@josselin-c](https://github.com/josselin-c))
+
+### Misc.
+* feat: Add option to provision StorageClasses ([#697](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/pull/697), [@gazal-k](https://github.com/gazal-k))
+* Add support for node existing service accounts ([#704](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/pull/704), [@mper0003](https://github.com/mper0003))
+* More controll over snapshot-controller scheduling ([#708](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/pull/708), [@alex-berger](https://github.com/alex-berger))
+* Remove arm overlay ([#719](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/pull/719), [@ayberk](https://github.com/ayberk))
+* patch stable release to use gcr image ([#740](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/pull/740), [@AndyXiangLi](https://github.com/AndyXiangLi))
+* Update ECR overlay ([#745](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/pull/745), [@ayberk](https://github.com/ayberk))
+* Set enableVolumeScheduling to true by default in the helm chart ([#752](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/pull/752), [@mtougeron](https://github.com/mtougeron))
+* Sets the imagePullSecrets if the value is set in the chart ([#755](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/pull/755), [@mtougeron](https://github.com/mtougeron))
+* Update livenessprobe image version from 2.1.0 to 2.2.0 ([#756](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/pull/756), [@mowangdk](https://github.com/mowangdk))
+* Update test k8s version to 1.18.16 ([#759](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/pull/759), [@ayberk](https://github.com/ayberk))
+* removed harcoded NAMESPACE from helm chart ([#768](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/pull/768), [@alexandrst88](https://github.com/alexandrst88))
+* Add ability to specify topologySpreadConstraints ([#770](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/pull/770), [@arcivanov](https://github.com/arcivanov))
+* Removing prestop hook for node-driver-registrar ([#778](https://github.com/kubernetes-sigs/aws-ebs-csi-driver/pull/778), [@tsunny](https://github.com/tsunny))
+
 # v0.9.0
 
 ## Notable changes

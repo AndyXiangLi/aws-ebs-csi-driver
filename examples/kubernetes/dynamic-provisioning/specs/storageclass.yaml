@@ -6,5 +6,5 @@ provisioner: ebs.csi.aws.com
 volumeBindingMode: WaitForFirstConsumer
 parameters:
   iops: "3006"
-  throughput: "125"
+  throughput: "126"
   encrypted: "true"

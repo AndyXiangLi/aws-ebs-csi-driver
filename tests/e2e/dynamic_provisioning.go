@@ -16,13 +16,8 @@ package e2e
 
 import (
 	"fmt"
-	"math/rand"
-	"os"
-	"strings"
-
 	. "github.com/onsi/ginkgo"
 	v1 "k8s.io/api/core/v1"
-	storagev1 "k8s.io/api/storage/v1"
 	clientset "k8s.io/client-go/kubernetes"
 	restclientset "k8s.io/client-go/rest"
 	"k8s.io/kubernetes/test/e2e/framework"
@@ -36,7 +31,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 )
-
+/*
 var _ = Describe("[ebs-csi-e2e] [single-az] Dynamic Provisioning", func() {
 	f := framework.NewDefaultFramework("ebs")
 
@@ -404,7 +399,7 @@ var _ = Describe("[ebs-csi-e2e] [single-az] Dynamic Provisioning", func() {
 		}
 		test.Run(cs, ns)
 	})
-})
+})*/
 
 var _ = Describe("[ebs-csi-e2e] [single-az] Snapshot", func() {
 	f := framework.NewDefaultFramework("ebs")
@@ -466,7 +461,7 @@ var _ = Describe("[ebs-csi-e2e] [single-az] Snapshot", func() {
 	})
 })
 
-var _ = Describe("[ebs-csi-e2e] [multi-az] Dynamic Provisioning", func() {
+/*var _ = Describe("[ebs-csi-e2e] [multi-az] Dynamic Provisioning", func() {
 	f := framework.NewDefaultFramework("ebs")
 
 	var (
@@ -538,7 +533,7 @@ var _ = Describe("[ebs-csi-e2e] [multi-az] Dynamic Provisioning", func() {
 		}
 		test.Run(cs, ns)
 	})
-})
+})*/
 
 func restClient(group string, version string) (restclientset.Interface, error) {
 	// setup rest client

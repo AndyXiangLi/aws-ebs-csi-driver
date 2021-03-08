@@ -4,3 +4,7 @@ metadata:
   name: ebs-sc
 provisioner: ebs.csi.aws.com
 volumeBindingMode: WaitForFirstConsumer
+parameters:
+  iops: "3006"
+  throughput: "125"
+  encrypted: "true"

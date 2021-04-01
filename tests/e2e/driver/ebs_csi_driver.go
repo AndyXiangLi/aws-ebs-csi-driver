@@ -43,7 +43,7 @@ func InitEbsCSIDriver() PVTestDriver {
 
 func (d *ebsCSIDriver) GetDynamicProvisionStorageClass(parameters map[string]string, mountOptions []string, reclaimPolicy *v1.PersistentVolumeReclaimPolicy, volumeExpansion *bool, bindingMode *storagev1.VolumeBindingMode, allowedTopologyValues []string, namespace string) *storagev1.StorageClass {
 	provisioner := d.driverName
-	generateName := fmt.Sprintf("%s-%s-dynamic-sc-", namespace, provisioner)
+	generateName := fmt.Sprintf("%s-dynamic-sc-", namespace)
 	allowedTopologies := []v1.TopologySelectorTerm{}
 
 	if len(allowedTopologyValues) > 0 {
@@ -106,7 +106,7 @@ func (d *ebsCSIDriver) GetPersistentVolume(volumeID string, fsType string, size 
 func GetParameters(volumeType string, fsType string, encrypted bool) map[string]string {
 	parameters := map[string]string{
 		"type":                      volumeType,
-		"csi.storage.k8s.io/fstype": fsType,
+		"fstype": fsType,
 	}
 	if iopsPerGB := IOPSPerGBForVolumeType(volumeType); iopsPerGB != "" {
 		parameters[ebscsidriver.IopsPerGBKey] = iopsPerGB

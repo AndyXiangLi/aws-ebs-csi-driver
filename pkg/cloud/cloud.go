@@ -56,12 +56,12 @@ const (
 var (
 	ValidVolumeTypes = []string{
 		VolumeTypeIO1,
-		VolumeTypeIO2,
+		//VolumeTypeIO2,
 		VolumeTypeGP2,
-		VolumeTypeGP3,
+		//VolumeTypeGP3,
 		VolumeTypeSC1,
 		VolumeTypeST1,
-		VolumeTypeStandard,
+		//VolumeTypeStandard,
 	}
 
 	volumeModificationDuration   = 1 * time.Second
@@ -86,7 +86,7 @@ const (
 	// DefaultVolumeSize represents the default volume size.
 	DefaultVolumeSize int64 = 100 * util.GiB
 	// DefaultVolumeType specifies which storage to use for newly created Volumes.
-	DefaultVolumeType = VolumeTypeGP3
+	DefaultVolumeType = VolumeTypeGP2
 )
 
 // Tags

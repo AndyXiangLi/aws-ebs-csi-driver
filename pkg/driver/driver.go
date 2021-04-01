@@ -40,7 +40,7 @@ const (
 )
 
 const (
-	DriverName      = "ebs.csi.aws.com"
+	DriverName      = "kubernetes.io/aws-ebs"
 	AwsPartitionKey = "topology." + DriverName + "/partition"
 	AwsAccountIDKey = "topology." + DriverName + "/account-id"
 	AwsRegionKey    = "topology." + DriverName + "/region"

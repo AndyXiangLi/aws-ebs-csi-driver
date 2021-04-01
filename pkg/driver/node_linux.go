@@ -18,18 +18,7 @@ limitations under the License.
 
 package driver
 
-import (
-	"fmt"
-	"os"
-	"path/filepath"
-	"strconv"
-	"strings"
-
-	"golang.org/x/sys/unix"
-	"k8s.io/klog"
-)
-
-// findDevicePath finds path of device and verifies its existence
+/*// findDevicePath finds path of device and verifies its existence
 // if the device is not nvme, return the path directly
 // if the device is nvme, finds and returns the nvme device path eg. /dev/nvme1n1
 func (d *nodeService) findDevicePath(devicePath, volumeID string) (string, error) {
@@ -107,3 +96,4 @@ func (d *nodeService) getBlockSizeBytes(devicePath string) (int64, error) {
 	}
 	return gotSizeBytes, nil
 }
+*/

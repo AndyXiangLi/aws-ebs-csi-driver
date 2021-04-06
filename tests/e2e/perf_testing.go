@@ -2,23 +2,26 @@ package e2e
 
 import (
 	"fmt"
-	. "github.com/onsi/ginkgo"
-	storagev1 "k8s.io/api/storage/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	clientset "k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
-	"math/rand"
-	"os"
-	"strings"
-
+	"github.com/kubernetes-csi/external-snapshotter/v2/pkg/apis/volumesnapshot/v1beta1"
+	snapshotclientset "github.com/kubernetes-csi/external-snapshotter/v2/pkg/client/clientset/versioned"
 	awscloud "github.com/kubernetes-sigs/aws-ebs-csi-driver/pkg/cloud"
 	ebscsidriver "github.com/kubernetes-sigs/aws-ebs-csi-driver/pkg/driver"
+	"github.com/kubernetes-sigs/aws-ebs-csi-driver/pkg/util"
 	"github.com/kubernetes-sigs/aws-ebs-csi-driver/tests/e2e/driver"
 	"github.com/kubernetes-sigs/aws-ebs-csi-driver/tests/e2e/testsuites"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/client-go/kubernetes"
+	apierrs "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/resource"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/wait"
+	clientset "k8s.io/client-go/kubernetes"
+	restclientset "k8s.io/client-go/rest"
 	"k8s.io/kubernetes/test/e2e/framework"
+	e2elog "k8s.io/kubernetes/test/e2e/framework/log"
+	e2epv "k8s.io/kubernetes/test/e2e/framework/pv"
+	"time"
 )
 
 var _ = Describe("[Performance] Dynamic Provisioning", func() {
@@ -102,7 +105,7 @@ var _ = Describe("[Performance] Dynamic Provisioning", func() {
 		}, 3)
 	}
 
-	Measure("should create a volume on demand with provided mountOptions", func(b Benchmarker) {
+	/*Measure("should create a volume on demand with provided mountOptions", func(b Benchmarker) {
 		pods := []testsuites.PodDetails{
 			{
 				Cmd: "echo 'hello world' > /mnt/test-1/data && grep 'hello world' /mnt/test-1/data",
@@ -128,7 +131,7 @@ var _ = Describe("[Performance] Dynamic Provisioning", func() {
 			test.Run(cs, ns)
 		})
 		print(fmt.Sprintf("Runtime: %v", runtime.Seconds()))
-	}, 3)
+	}, 3)*/
 	/*
 		Measure("should create multiple PV objects, bind to PVCs and attach all to a single pod", func(b Benchmarker) {
 			pods := []testsuites.PodDetails{
@@ -166,7 +169,7 @@ var _ = Describe("[Performance] Dynamic Provisioning", func() {
 			print(fmt.Sprintf("Runtime: %v", runtime.Seconds()))
 		},10)*/
 
-	Measure("should create multiple PV objects, bind to PVCs and attach all to different pods", func(b Benchmarker) {
+	/*Measure("should create multiple PV objects, bind to PVCs and attach all to different pods", func(b Benchmarker) {
 		pods := []testsuites.PodDetails{
 			{
 				Cmd: "echo 'hello world' > /mnt/test-1/data && grep 'hello world' /mnt/test-1/data",
@@ -412,10 +415,11 @@ var _ = Describe("[Performance] Dynamic Provisioning", func() {
 			test.Run(cs, ns)
 		})
 		print(fmt.Sprintf("Runtime: %v", runtime.Seconds()))
-	}, 3)
+	}, 3)*/
 })
 
-/*var _ = Describe("[Performance] Snapshot", func() {
+/*
+var _ = Describe("[Performance] Snapshot", func() {
 	f := framework.NewDefaultFramework("ebs")
 
 	var (
@@ -478,7 +482,7 @@ var _ = Describe("[Performance] Dynamic Provisioning", func() {
 	}, 10)
 })*/
 
-var _ = Describe("[Performance] Dynamic Provisioning", func() {
+/*var _ = Describe("[Performance] Dynamic Provisioning", func() {
 	f := framework.NewDefaultFramework("ebs")
 
 	var (
@@ -556,33 +560,281 @@ var _ = Describe("[Performance] Dynamic Provisioning", func() {
 		})
 		print(fmt.Sprintf("Runtime: %v", runtime.Seconds()))
 	}, 3)
-})
+})*/
 
-func createPVCOnDemand() {
+var _ = Describe("[PerformanceISO] Dynamic Provisioning", func() {
+	f := framework.NewDefaultFramework("ebs")
+
+	var (
+		cs clientset.Interface
+		//ns          *v1.Namespace
+	)
+
+	BeforeEach(func() {
+		cs = f.ClientSet
+		//ns = f.Namespace
+	})
+
+	/*Measure("should iso create volume", func(b Benchmarker) {
 	// uses the current context in kubeconfig
 	// path-to-kubeconfig -- for example, /root/.kube/config
-	config, _ := clientcmd.BuildConfigFromFlags("", "$HOME/.kube/config")
+
 	// creates the clientset
-	clientset, _ := kubernetes.NewForConfig(config)
-	// access the API to list pods
-	scName := "ebs-sc"
+	runtime := b.Time("runtime", func() {
+		createPVCOnDemand(cs, "default")
+	})
+	print(fmt.Sprintf("Runtime: %v", runtime.Seconds()))	}, 1)*/
+
+	/*Measure("should iso modify volume", func(b Benchmarker) {
+		// uses the current context in kubeconfig
+		// path-to-kubeconfig -- for example, /root/.kube/config
+
+		// creates the clientset
+		runtime := b.Time("runtime", func() {
+			UpdatePVCOnDemand(cs, "default")
+		})
+		print(fmt.Sprintf("Runtime: %v", runtime.Seconds()))
+	}, 1)*/
+	Measure("should iso delete volume", func(b Benchmarker) {
+		// uses the current context in kubeconfig
+		// path-to-kubeconfig -- for example, /root/.kube/config
+
+		// creates the clientset
+		runtime := b.Time("runtime", func() {
+			DeletePVCOnDemand(cs, "default")
+		})
+		print(fmt.Sprintf("Runtime: %v", runtime.Seconds()))
+	}, 1)
+
+})
+
+func UpdatePVCOnDemand(clientsete2e clientset.Interface, ns string) {
+
+	for i:=0;i<100;i++ {
+		pvcName := fmt.Sprintf("pvc-%d", i)
+		//scName := "ebs-cs-iso"
+		//volumeMode := v1.PersistentVolumeFilesystem
+		pvc, err := clientsete2e.CoreV1().PersistentVolumeClaims(ns).Get(pvcName, metav1.GetOptions{})
+		if err != nil {
+			framework.ExpectNoError(err, fmt.Sprintf("fail to get pvc(%s): %v", pvcName, err))
+		}
+		originalSize := pvc.Spec.Resources.Requests["storage"]
+		delta := resource.Quantity{}
+		delta.Set(util.GiBToBytes(1))
+		originalSize.Add(delta)
+		pvc.Spec.Resources.Requests["storage"] = originalSize
+
+		By(fmt.Sprintf("get pvc %v in ns %v", pvc, ns))
+
+
+		updatedPvc, err := clientsete2e.CoreV1().PersistentVolumeClaims(ns).Update(pvc)
+		if err != nil {
+			framework.ExpectNoError(err, fmt.Sprintf("fail to resize pvc(%s): %v", pvcName, err))
+		}
+		WaitForPvToResize(clientsete2e, ns,  updatedPvc.Spec.VolumeName, originalSize,  1*time.Minute, 5*time.Second)
+	}
+
+
+}
+
+// WaitForPvToResize waiting for pvc size to be resized to desired size
+func WaitForPvToResize(c clientset.Interface, ns string, pvName string, desiredSize resource.Quantity, timeout time.Duration, interval time.Duration) error {
+	By(fmt.Sprintf("Waiting up to %v for pv in namespace %q to be complete", timeout, ns))
+	for start := time.Now(); time.Since(start) < timeout; time.Sleep(interval) {
+		newPv, _ := c.CoreV1().PersistentVolumes().Get(pvName, metav1.GetOptions{})
+		newPvSize := newPv.Spec.Capacity["storage"]
+		if desiredSize.Equal(newPvSize) {
+			By(fmt.Sprintf("Pv size is updated to %v", newPvSize.String()))
+			return nil
+		}
+	}
+	return fmt.Errorf("Gave up after waiting %v for pv %q to complete resizing", timeout, pvName)
+}
+
+func DeletePVCOnDemand(clientsete2e clientset.Interface, ns string) {
+
+	for i := 0; i < 100; i++ {
+		pvcName := fmt.Sprintf("pvc-%d", i)
+		clientsete2e.CoreV1().PersistentVolumeClaims(ns).Delete(pvcName, nil)
+		waitForPersistentVolumeClaimDeleted(clientsete2e, ns, pvcName, 5*time.Second, 5*time.Minute)
+	}
+
+}
+func createPVCOnDemand(clientsete2e clientset.Interface, ns string) {
+
+	scName := "in-tree-iso"
 	volumeMode := v1.PersistentVolumeFilesystem
-	pvc := &v1.PersistentVolumeClaim{
-		ObjectMeta: metav1.ObjectMeta{
-			GenerateName: "pvc-123",
-		},
-		Spec: v1.PersistentVolumeClaimSpec{
-			StorageClassName: &scName,
-			AccessModes: []v1.PersistentVolumeAccessMode{
-				v1.ReadWriteOnce,
+	for i := 0; i < 100; i++ {
+		name := fmt.Sprintf("pvc-%d", i)
+		pvc := &v1.PersistentVolumeClaim{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      name,
+				Namespace: ns,
 			},
-			Resources: v1.ResourceRequirements{
-				Requests: v1.ResourceList{
-					v1.ResourceName(v1.ResourceStorage): resource.MustParse("1Gi"),
+			Spec: v1.PersistentVolumeClaimSpec{
+				StorageClassName: &scName,
+				AccessModes: []v1.PersistentVolumeAccessMode{
+					v1.ReadWriteOnce,
+				},
+				Resources: v1.ResourceRequirements{
+					Requests: v1.ResourceList{
+						v1.ResourceName(v1.ResourceStorage): resource.MustParse("1Gi"),
+					},
+				},
+				VolumeMode: &volumeMode,
+			},
+		}
+		clientsete2e.CoreV1().PersistentVolumeClaims(ns).Create(pvc)
+		WaitForSuccess(clientsete2e, ns, name)
+	}
+}
+
+func WaitForSuccess(clientsete2e clientset.Interface, ns string, pvcName string) v1.PersistentVolumeClaim {
+	var err error
+
+	By(fmt.Sprintf("waiting for PVC to be in phase %q", v1.ClaimBound))
+	err = e2epv.WaitForPersistentVolumeClaimPhase(v1.ClaimBound, clientsete2e, ns, pvcName, framework.Poll, framework.ClaimProvisionTimeout)
+	framework.ExpectNoError(err)
+
+	By("checking the PVC")
+	// Get new copy of the claim
+	persistentVolumeClaim, err := clientsete2e.CoreV1().PersistentVolumeClaims(ns).Get(pvcName, metav1.GetOptions{})
+	framework.ExpectNoError(err)
+	By("validating provisioned PV")
+	persistentVolume, err := clientsete2e.CoreV1().PersistentVolumes().Get(persistentVolumeClaim.Spec.VolumeName, metav1.GetOptions{})
+	framework.ExpectNoError(err)
+
+	pvCapacity := persistentVolume.Spec.Capacity[v1.ResourceName(v1.ResourceStorage)]
+	claimCapacity := persistentVolumeClaim.Spec.Resources.Requests[v1.ResourceName(v1.ResourceStorage)]
+	Expect(pvCapacity.Value()).To(Equal(claimCapacity.Value()), "pvCapacity is not equal to requestedCapacity")
+
+	return *persistentVolumeClaim
+}
+
+// waitForPersistentVolumeClaimDeleted waits for a PersistentVolumeClaim to be removed from the system until timeout occurs, whichever comes first.
+func waitForPersistentVolumeClaimDeleted(c clientset.Interface, ns string, pvcName string, Poll, timeout time.Duration) error {
+	framework.Logf("Waiting up to %v for PersistentVolumeClaim %s to be removed", timeout, pvcName)
+	for start := time.Now(); time.Since(start) < timeout; time.Sleep(Poll) {
+		_, err := c.CoreV1().PersistentVolumeClaims(ns).Get(pvcName, metav1.GetOptions{})
+		if err != nil {
+			if apierrs.IsNotFound(err) {
+				framework.Logf("Claim %q in namespace %q doesn't exist in the system", pvcName, ns)
+				return nil
+			}
+			framework.Logf("Failed to get claim %q in namespace %q, retrying in %v. Error: %v", pvcName, ns, Poll, err)
+		}
+	}
+	return fmt.Errorf("PersistentVolumeClaim %s is not removed from the system within %v", pvcName, timeout)
+}
+
+var _ = Describe("[PerformanceSnapshotISO] Dynamic Provisioning", func() {
+
+	var (
+		snapshotrcs restclientset.Interface
+	)
+
+	BeforeEach(func() {
+		var err error
+		snapshotrcs, err = restClient(testsuites.SnapshotAPIGroup, testsuites.APIVersionv1beta1)
+		if err != nil {
+			Fail(fmt.Sprintf("could not get rest clientset: %v", err))
+		}
+	})
+
+	Measure("should iso create snapshot", func(b Benchmarker) {
+		// uses the current context in kubeconfig
+		// path-to-kubeconfig -- for example, /root/.kube/config
+
+		// creates the clientset
+		runtime := b.Time("runtime", func() {
+			createSnapshotOnDemand(snapshotrcs, "ebs-claim", "default")
+		})
+		print(fmt.Sprintf("Runtime: %v", runtime.Seconds()))
+	}, 1)
+
+	/*Measure("should iso delete snapshot", func(b Benchmarker) {
+	// uses the current context in kubeconfig
+	// path-to-kubeconfig -- for example, /root/.kube/config
+
+	// creates the clientset
+	runtime := b.Time("runtime", func() {
+		deleteSnapshotOnDemand(snapshotrcs, "default")
+	})
+	print(fmt.Sprintf("Runtime: %v", runtime.Seconds()))	}, 1)*/
+
+})
+
+const (
+	VolumeSnapshotKind        = "VolumeSnapshot"
+	VolumeSnapshotContentKind = "VolumeSnapshotContent"
+	SnapshotAPIVersion        = "snapshot.storage.k8s.io/v1beta1"
+	APIVersionv1beta1         = "v1beta1"
+)
+
+func createSnapshotOnDemand(snapshotrcs restclientset.Interface, pvcName string, ns string) {
+	By("creating a VolumeSnapshot for " + pvcName)
+	vsc := "csi-aws-vsc"
+	for i := 0; i < 1; i++ {
+		name := fmt.Sprintf("snapshot-%d", i)
+		snapshot := &v1beta1.VolumeSnapshot{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       VolumeSnapshotKind,
+				APIVersion: SnapshotAPIVersion,
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      name,
+				Namespace: ns,
+			},
+			Spec: v1beta1.VolumeSnapshotSpec{
+				VolumeSnapshotClassName: &vsc,
+				Source: v1beta1.VolumeSnapshotSource{
+					PersistentVolumeClaimName: &pvcName,
 				},
 			},
-			VolumeMode: &volumeMode,
-		},
+		}
+		snapshot, err := snapshotclientset.New(snapshotrcs).SnapshotV1beta1().VolumeSnapshots(ns).Create(snapshot)
+		framework.ExpectNoError(err)
+		WaitForSnapshotReadyToUse(snapshot, snapshotrcs, ns)
 	}
-	clientset.CoreV1().PersistentVolumeClaims("default").Create(pvc)
+}
+
+func WaitForSnapshotReadyToUse(snapshot *v1beta1.VolumeSnapshot, snapshotrcs restclientset.Interface, ns string) {
+	By("waiting for VolumeSnapshot to be ready to use - " + snapshot.Name)
+	err := wait.Poll(15*time.Second, 5*time.Minute, func() (bool, error) {
+		vs, err := snapshotclientset.New(snapshotrcs).SnapshotV1beta1().VolumeSnapshots(ns).Get(snapshot.Name, metav1.GetOptions{})
+		if err != nil {
+			return false, fmt.Errorf("did not see ReadyToUse: %v", err)
+		}
+
+		if vs.Status == nil || vs.Status.ReadyToUse == nil {
+			return false, nil
+		}
+		return *vs.Status.ReadyToUse, nil
+	})
+	framework.ExpectNoError(err)
+}
+
+func deleteSnapshotOnDemand(snapshotrcs restclientset.Interface, ns string) {
+	for i := 0; i < 100; i++ {
+		snapshotName := fmt.Sprintf("snapshot-%d", i)
+		err := snapshotclientset.New(snapshotrcs).SnapshotV1beta1().VolumeSnapshots(ns).Delete(snapshotName, nil)
+		framework.ExpectNoError(err)
+		waitForSnapshotDeleted(snapshotrcs, snapshotName, ns, 5*time.Second, 5*time.Minute)
+	}
+}
+
+func waitForSnapshotDeleted(snapshotrcs restclientset.Interface, snapshotName string, ns string, poll, timeout time.Duration) error {
+	e2elog.Logf("Waiting up to %v for VolumeSnapshot %s to be removed", timeout, snapshotName)
+	c := snapshotclientset.New(snapshotrcs).SnapshotV1beta1()
+	for start := time.Now(); time.Since(start) < timeout; time.Sleep(poll) {
+		_, err := c.VolumeSnapshots(ns).Get(snapshotName, metav1.GetOptions{})
+		if err != nil {
+			if apierrs.IsNotFound(err) {
+				e2elog.Logf("Snapshot %q in namespace %q doesn't exist in the system", snapshotName, ns)
+				return nil
+			}
+			e2elog.Logf("Failed to get snapshot %q in namespace %q, retrying in %v. Error: %v", snapshotName, ns, poll, err)
+		}
+	}
+	return fmt.Errorf("VolumeSnapshot %s is not removed from the system within %v", snapshotName, timeout)
 }

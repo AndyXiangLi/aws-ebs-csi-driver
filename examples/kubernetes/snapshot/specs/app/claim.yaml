@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: ebs-claim
+  name: pvc-123
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: ebs-sc
+  storageClassName: ebs-sc-iso
   resources:
     requests:
-      storage: 4Gi
+      storage: 1Gi

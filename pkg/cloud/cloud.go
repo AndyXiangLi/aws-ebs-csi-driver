@@ -56,12 +56,12 @@ const (
 var (
 	ValidVolumeTypes = []string{
 		VolumeTypeIO1,
-		//VolumeTypeIO2,
+		VolumeTypeIO2,
 		VolumeTypeGP2,
 		//VolumeTypeGP3,
 		VolumeTypeSC1,
-		VolumeTypeST1,
-		//VolumeTypeStandard,
+		//VolumeTypeST1,
+		VolumeTypeStandard,
 	}
 
 	volumeModificationDuration   = 1 * time.Second

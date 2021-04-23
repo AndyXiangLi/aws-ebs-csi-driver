@@ -232,7 +232,7 @@ Journal checksum:         0xb7df3c6e
 			}
 			safe := mount.SafeFormatAndMount{
 				Interface: mount.New(""),
-				Exec:      utilexec.New(),
+				Exec:      &fexec,
 			}
 			fakeMounter := NodeMounter{safe, &fexec}
 

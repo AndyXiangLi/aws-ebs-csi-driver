@@ -224,7 +224,7 @@ func TestCreateDisk(t *testing.T) {
 				AvailabilityZone: expZone,
 			},
 			expCreateVolumeInput: &ec2.CreateVolumeInput{},
-			expErr:               ErrInFlight,
+			expErr:               ErrIdempotent,
 			expCreateVolumeErr:   awserr.New("IdempotentParameterMismatch", "Another request is in-flight", fmt.Errorf("another request is in-flight")),
 		},
 		{

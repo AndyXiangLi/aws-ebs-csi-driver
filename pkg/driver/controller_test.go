@@ -1611,7 +1611,7 @@ func TestCreateVolume(t *testing.T) {
 
 				mockCloud := mocks.NewMockCloud(mockCtl)
 				mockCloud.EXPECT().GetDiskByName(gomock.Eq(ctx), gomock.Eq(req.Name), gomock.Eq(stdVolSize)).Return(nil, cloud.ErrNotFound)
-				mockCloud.EXPECT().CreateDisk(gomock.Eq(ctx), gomock.Eq(req.Name), gomock.Any()).Return(nil, cloud.ErrInFlight)
+				mockCloud.EXPECT().CreateDisk(gomock.Eq(ctx), gomock.Eq(req.Name), gomock.Any()).Return(nil, cloud.ErrIdempotent)
 
 				awsDriver := controllerService{
 					cloud:    mockCloud,

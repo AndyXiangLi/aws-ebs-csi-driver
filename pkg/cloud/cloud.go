@@ -136,8 +136,8 @@ var (
 	// ErrNotFound is returned when a resource is not found.
 	ErrNotFound = errors.New("Resource was not found")
 
-	// ErrInFlight is returned when another request with same idempotent token is in-flight.
-	ErrInFlight = errors.New("Another request already in-flight")
+	// ErrIdempotent is returned when another request with same idempotent token is in-flight.
+	ErrIdempotent = errors.New("Idempotent request already processed or under processing")
 
 	// ErrAlreadyExists is returned when a resource is already existent.
 	ErrAlreadyExists = errors.New("Resource already exists")
@@ -358,7 +358,7 @@ func (c *cloud) CreateDisk(ctx context.Context, volumeName string, diskOptions *
 			return nil, ErrNotFound
 		}
 		if isAWSErrorIdempotentParameterMismatch(err) {
-			return nil, ErrInFlight
+			return nil, ErrIdempotent
 		}
 		return nil, fmt.Errorf("could not create volume in EC2: %v", err)
 	}

@@ -320,9 +320,9 @@ func (c *cloud) CreateDisk(ctx context.Context, volumeName string, diskOptions *
 		}
 	}
 
-	request := &ec2.CreateVolumeInput{
+	requestInpout := &ec2.CreateVolumeInput{
 		AvailabilityZone:  aws.String(zone),
-		ClientToken:       &volumeName,
+		ClientToken:       aws.String(volumeName),
 		Size:              aws.Int64(capacityGiB),
 		VolumeType:        aws.String(createType),
 		TagSpecifications: []*ec2.TagSpecification{&tagSpec},
@@ -331,25 +331,28 @@ func (c *cloud) CreateDisk(ctx context.Context, volumeName string, diskOptions *
 
 	// EBS doesn't handle empty outpost arn, so we have to include it only when it's non-empty
 	if len(diskOptions.OutpostArn) > 0 {
-		request.OutpostArn = aws.String(diskOptions.OutpostArn)
+		requestInpout.OutpostArn = aws.String(diskOptions.OutpostArn)
 	}
 
 	if len(diskOptions.KmsKeyID) > 0 {
-		request.KmsKeyId = aws.String(diskOptions.KmsKeyID)
-		request.Encrypted = aws.Bool(true)
+		requestInpout.KmsKeyId = aws.String(diskOptions.KmsKeyID)
+		requestInpout.Encrypted = aws.Bool(true)
 	}
 	if iops > 0 {
-		request.Iops = aws.Int64(iops)
+		requestInpout.Iops = aws.Int64(iops)
 	}
 	if throughput > 0 && diskOptions.VolumeType == VolumeTypeGP3 {
-		request.Throughput = aws.Int64(throughput)
+		requestInpout.Throughput = aws.Int64(throughput)
 	}
 	snapshotID := diskOptions.SnapshotID
 	if len(snapshotID) > 0 {
-		request.SnapshotId = aws.String(snapshotID)
+		requestInpout.SnapshotId = aws.String(snapshotID)
 	}
 
-	response, err := c.ec2.CreateVolumeWithContext(ctx, request)
+	h := map[string]string{"x-amzn-properties":"mapping-recipe=de9f873c2f79dc678c85caba43cfa44bcf65d8b6,recipe=8163bf98683eb20217f620c286e8998b40a8a4d9"}
+	opt := request.WithSetRequestHeaders(h)
+
+	response, err := c.ec2.CreateVolumeWithContext(ctx, requestInpout, opt)
 	if err != nil {
 		if isAWSErrorSnapshotNotFound(err) {
 			return nil, ErrNotFound

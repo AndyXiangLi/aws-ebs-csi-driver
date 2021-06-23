@@ -1594,6 +1594,36 @@ func TestCreateVolume(t *testing.T) {
 				}
 			},
 		},
+		{
+			name: "Fail with IdempotentParameterMismatch error",
+			testFunc: func(t *testing.T) {
+				req := &csi.CreateVolumeRequest{
+					Name:               "vol-test",
+					CapacityRange:      stdCapRange,
+					VolumeCapabilities: stdVolCap,
+				}
+
+				ctx := context.Background()
+
+
+				mockCtl := gomock.NewController(t)
+				defer mockCtl.Finish()
+
+				mockCloud := mocks.NewMockCloud(mockCtl)
+				mockCloud.EXPECT().GetDiskByName(gomock.Eq(ctx), gomock.Eq(req.Name), gomock.Eq(stdVolSize)).Return(nil, cloud.ErrNotFound)
+				mockCloud.EXPECT().CreateDisk(gomock.Eq(ctx), gomock.Eq(req.Name), gomock.Any()).Return(nil, cloud.ErrInFlight)
+
+				awsDriver := controllerService{
+					cloud:    mockCloud,
+					inFlight: internal.NewInFlight(),
+					driverOptions: &DriverOptions{
+					},
+				}
+
+				_, err := awsDriver.CreateVolume(ctx, req)
+				checkAbortedErrorCode(t, err)
+			},
+		},
 	}
 
 	for _, tc := range testCases {

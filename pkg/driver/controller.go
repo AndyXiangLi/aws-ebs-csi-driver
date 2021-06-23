@@ -247,6 +247,9 @@ func (d *controllerService) CreateVolume(ctx context.Context, req *csi.CreateVol
 		if err == cloud.ErrNotFound {
 			errCode = codes.NotFound
 		}
+		if err == cloud.ErrInFlight {
+			errCode = codes.Aborted
+		}
 		return nil, status.Errorf(errCode, "Could not create volume %q: %v", volName, err)
 	}
 	return newCreateVolumeResponse(disk), nil

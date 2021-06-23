@@ -136,6 +136,9 @@ var (
 	// ErrNotFound is returned when a resource is not found.
 	ErrNotFound = errors.New("Resource was not found")
 
+	// ErrInFlight is returned when another request with same idempotent token is in-flight.
+	ErrInFlight = errors.New("Another request already in-flight")
+
 	// ErrAlreadyExists is returned when a resource is already existent.
 	ErrAlreadyExists = errors.New("Resource already exists")
 
@@ -319,6 +322,7 @@ func (c *cloud) CreateDisk(ctx context.Context, volumeName string, diskOptions *
 
 	request := &ec2.CreateVolumeInput{
 		AvailabilityZone:  aws.String(zone),
+		ClientToken:       &volumeName,
 		Size:              aws.Int64(capacityGiB),
 		VolumeType:        aws.String(createType),
 		TagSpecifications: []*ec2.TagSpecification{&tagSpec},
@@ -349,6 +353,9 @@ func (c *cloud) CreateDisk(ctx context.Context, volumeName string, diskOptions *
 	if err != nil {
 		if isAWSErrorSnapshotNotFound(err) {
 			return nil, ErrNotFound
+		}
+		if isAWSErrorIdempotentParameterMismatch(err) {
+			return nil, ErrInFlight
 		}
 		return nil, fmt.Errorf("could not create volume in EC2: %v", err)
 	}
@@ -987,6 +994,13 @@ func isAWSErrorModificationNotFound(err error) bool {
 // reported when the specified snapshot doesn't exist.
 func isAWSErrorSnapshotNotFound(err error) bool {
 	return isAWSError(err, "InvalidSnapshot.NotFound")
+}
+
+// isAWSErrorIdempotentParameterMismatch returns a boolean indicating whether the
+// given error is an AWS IdempotentParameterMismatch error.
+// This error is reported when the two request contains same client-token but different parameters
+func isAWSErrorIdempotentParameterMismatch(err error) bool {
+	return isAWSError(err, "IdempotentParameterMismatch")
 }
 
 // ResizeDisk resizes an EBS volume in GiB increments, rouding up to the next possible allocatable unit.
